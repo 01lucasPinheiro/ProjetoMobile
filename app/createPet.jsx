@@ -10,11 +10,11 @@ import {
 } from 'react-native';
 import { useAuth } from './_layout';
 
-const BASE_URL = 'https://petadopt.onrender.com';
+const BASE_URL = 'https://petadopt.onrender.com'
 
 export default function CreatePetScreen({ navigation, route }) {
   const { token } = useAuth();
-  const { onCreated } = route.params || {};
+  const { onCreated } = route?.params || {};
 
   const [form, setForm] = useState({
     name: '', breed: '', gender: 'male', age: '',

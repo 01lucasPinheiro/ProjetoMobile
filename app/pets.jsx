@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator, Alert,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator, Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useAuth } from './_layout';
 
@@ -39,6 +39,7 @@ function PetCard({ pet }) {
 }
 
 export default function PetsScreen({ navigation }) {
+  const router = useRouter(); 
   const { token, setToken } = useAuth();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +61,7 @@ export default function PetsScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => { fetchPets(); }, [fetchPets]);
+  useEffect(() => { fetchPets(); }, [fetchPets]);s
 
   function onRefresh() {
     setRefreshing(true);
@@ -82,6 +83,7 @@ export default function PetsScreen({ navigation }) {
         keyExtractor={item => item._id}
         renderItem={({ item }) => <PetCard pet={item} />}
         contentContainerStyle={styles.list}
+        
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#E07B39']} />}
         ListEmptyComponent={
           <View style={styles.centered}>
