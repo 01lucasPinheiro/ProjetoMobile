@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,6 +13,7 @@ import { useAuth } from './_layout';
 const BASE_URL = 'https://petadopt.onrender.com';
 
 export default function RegisterScreen({ navigation }) {
+  const router = useRouter();
   const { setToken } = useAuth();
   const [form, setForm] = useState({
     name: '', email: '', phone: '', password: '', confirmpassword: '',
@@ -79,7 +81,7 @@ export default function RegisterScreen({ navigation }) {
           {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Cadastrar</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.replace('/')}>
           <Text style={styles.link}>Já tem conta? <Text style={styles.linkBold}>Entrar</Text></Text>
         </TouchableOpacity>
       </ScrollView>

@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import { useAuth } from './_layout';
 
@@ -15,31 +16,34 @@ const BASE_URL = 'https://petadopt.onrender.com';
 
 function PetCard({ pet }) {
   const router = useRouter();
-  const genderLabel = pet.gender === 'male' ? '♂ Macho' : '♀ Fêmea';
-  const statusColor = pet.available ? '#4CAF50' : '#999';
-  const statusLabel = pet.available ? 'Disponível' : 'Adotado';
+
+  function handlePress() {
+    router.push({
+      pathname: '/petDetails',
+      params: {
+        pet: JSON.stringify(pet),
+      },
+    });
+  }
 
   return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.petName}>{pet.name}</Text>
-        <View style={[styles.badge, { backgroundColor: statusColor }]}>
-          <Text style={styles.badgeText}>{statusLabel}</Text>
-        </View>
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
+      <View style={styles.imagePlaceholder}>
+        <Image
+          source={{ uri: pet.images[0] }}
+          style={styles.petImage}
+          resizeMode="cover"
+        />
       </View>
-      <Text style={styles.petBreed}>{pet.breed} · {genderLabel}</Text>
-      <View style={styles.row}>
-        <Text style={styles.detail}>🎂 {pet.age} anos</Text>
-        <Text style={styles.detail}>⚖️ {pet.weight} kg</Text>
-        <Text style={styles.detail}>🎨 {pet.color}</Text>
-      </View>
-      {pet.story ? <Text style={styles.story} numberOfLines={2}>{pet.story}</Text> : null}
-    </View>
+
+      <Text style={styles.petName}>{pet.name}</Text>
+      <Text style={styles.petBreed}>{pet.breed}</Text>
+    </TouchableOpacity>
   );
 }
 
-export default function PetsScreen({ navigation }) {
-  const router = useRouter(); 
+export default function PetsScreen() {
+  const router = useRouter();
   const { token, setToken } = useAuth();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +65,7 @@ export default function PetsScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => { fetchPets(); }, [fetchPets]);s
+  useEffect(() => { fetchPets(); }, [fetchPets]);
 
   function onRefresh() {
     setRefreshing(true);
@@ -83,7 +87,7 @@ export default function PetsScreen({ navigation }) {
         keyExtractor={item => item._id}
         renderItem={({ item }) => <PetCard pet={item} />}
         contentContainerStyle={styles.list}
-        
+
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#E07B39']} />}
         ListEmptyComponent={
           <View style={styles.centered}>
@@ -110,33 +114,37 @@ const styles = StyleSheet.create({
   list: { padding: 16, paddingBottom: 100 },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  petName: { fontSize: 18, fontWeight: '700', color: '#222' },
-  badge: {
+
+  imagePlaceholder: {
+    width: '100%',
+    height: 180,
     borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    overflow: 'hidden',
+    marginBottom: 12,
+    backgroundColor: '#f1f1f1',
   },
-  badgeText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  petBreed: { color: '#666', fontSize: 14, marginBottom: 8 },
-  row: { flexDirection: 'row', gap: 12, marginBottom: 8 },
-  detail: { fontSize: 13, color: '#555' },
-  story: { fontSize: 13, color: '#888', fontStyle: 'italic' },
-  emptyText: { color: '#999', fontSize: 16 },
+
+  petImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  petName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#222',
+  },
+
+  petBreed: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 4,
+  },
   footer: {
     position: 'absolute',
     bottom: 0,

@@ -9,21 +9,30 @@ export function useAuth() {
 
 export default function RootLayout() {
   const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const segments = useSegments();
   const router = useRouter();
 
-  // Proteção de rotas: redireciona baseado no token
   useEffect(() => {
-    const inAuthGroup = segments[0] === 'pets' || segments[0] === 'createPet';
+    setIsLoading(false);
+  }, []);
 
-    if (!token && inAuthGroup) {
-      // Se não tem token e tentou acessar área logada, vai para o Login
-      router.replace('/');
-    } else if (token && !inAuthGroup) {
-      // Se tem token e está na tela de login/cadastro, vai para os Pets
-      router.replace('/pets');
-    }
-  }, [token, segments]);
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === 'pets' || segments[0] === 'createPet' || segments[0] === 'petDetails';
+
+    const navigationTimeout = setTimeout(() => {
+      if (!token && inAuthGroup) {
+        router.replace('/');
+      } else if (token && !inAuthGroup) {
+        router.replace('/pets');
+      }
+    }, 0);
+
+    return () => clearTimeout(navigationTimeout);
+  }, [token, segments, isLoading]);
 
   return (
     <AuthContext.Provider value={{ token, setToken }}>
@@ -38,6 +47,7 @@ export default function RootLayout() {
         <Stack.Screen name="register" options={{ title: 'Criar conta' }} />
         <Stack.Screen name="pets" options={{ title: 'Pets disponíveis' }} />
         <Stack.Screen name="createPet" options={{ title: 'Cadastrar pet' }} />
+        <Stack.Screen name="petDetails" options={{ title: 'Detalhes do pet' }} />
       </Stack>
     </AuthContext.Provider>
   );
