@@ -8,8 +8,8 @@ import {
   StyleSheet,
   Text, TextInput, TouchableOpacity
 } from 'react-native';
+import { api } from '../services/api';
 import { useAuth } from './_layout';
-
 const BASE_URL = 'https://petadopt.onrender.com';
 
 export default function RegisterScreen({ navigation }) {
@@ -25,24 +25,9 @@ export default function RegisterScreen({ navigation }) {
   }
 
   async function handleRegister() {
-    const { name, email, phone, password, confirmpassword } = form;
-    if (!name || !email || !phone || !password || !confirmpassword) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
-      return;
-    }
-    if (password !== confirmpassword) {
-      Alert.alert('Atenção', 'As senhas não coincidem.');
-      return;
-    }
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/user/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Erro ao cadastrar');
+      const data = await api.register(form);
       setToken(data.token);
     } catch (err) {
       Alert.alert('Erro', err.message);
@@ -50,7 +35,6 @@ export default function RegisterScreen({ navigation }) {
       setLoading(false);
     }
   }
-
   const fields = [
     { key: 'name', placeholder: 'Nome completo' },
     { key: 'email', placeholder: 'E-mail', autoCapitalize: 'none', keyboardType: 'email-address' },

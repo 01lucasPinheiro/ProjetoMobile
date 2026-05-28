@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView, Platform,
-    StyleSheet,
-    Text, TextInput, TouchableOpacity
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView, Platform,
+  StyleSheet,
+  Text, TextInput, TouchableOpacity
 } from 'react-native';
 import { useAuth } from './_layout';
-
+import { api } from '../services/api';
 const BASE_URL = 'https://petadopt.onrender.com';
 
 export default function LoginScreen({ navigation }) {
@@ -19,20 +19,11 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-    if (!email || !password) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
-      return;
-    }
+    if (!email || !password) return Alert.alert('Atenção', 'Preencha todos os campos.');
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/user/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Erro ao fazer login');
-      setToken(data.token);
+      const data = await api.login(email, password);
+      setToken(data.token); // O _layout agora salvará isso no AsyncStorage!
     } catch (err) {
       Alert.alert('Erro', err.message);
     } finally {

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from './_layout';
-
+import { api } from '../services/api';
 const BASE_URL = 'https://petadopt.onrender.com'
 
 export default function CreatePetScreen({ navigation, route }) {
@@ -25,20 +25,14 @@ export default function CreatePetScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchCategories() {
+    const fetchCategories = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/pet/category`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : data.categories || [];
+        const list = await api.getCategories(token);
         setCategories(list);
         if (list.length > 0) setForm(prev => ({ ...prev, category: list[0]._id }));
       } catch {
-        Alert.alert('Erro', 'Não foi possível carregar as categorias. Tente novamente mais tarde.');
-      } finally {
-        setLoadingCats(false);
-      }
+        Alert.alert('Erro', 'Não foi possível carregar as categorias.');
+      } finally { setLoadingCats(false); }
     }
     fetchCategories();
   }, [token]);
@@ -55,28 +49,13 @@ export default function CreatePetScreen({ navigation, route }) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/pet/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name, breed, gender,
-          age: Number(age),
-          weight: Number(weight),
-          color, story, available, category,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Erro ao cadastrar pet');
-      Alert.alert('Sucesso', 'Pet cadastrado com sucesso!', [
-        {
-          text: 'OK', onPress: () => {
-            onCreated?.();
-            navigation.goBack();
-          },
-        },
+      await api.createPet({ 
+        name, breed, gender, age: Number(age), weight: Number(weight), 
+        color, story, available, category 
+      }, token);
+      
+      Alert.alert('Sucesso', 'Pet cadastrado!', [
+        { text: 'OK', onPress: () => { onCreated?.(); navigation.goBack(); } },
       ]);
     } catch (err) {
       Alert.alert('Erro', err.message);
